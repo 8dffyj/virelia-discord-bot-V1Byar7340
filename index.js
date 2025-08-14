@@ -103,11 +103,11 @@ function setupExpirationChecks() {
 async function updateBotActivity() {
   try {
     const stats = await SubscriptionService.getSubscriptionStats();
-    client.user.setActivity(`${stats.active} active subs | Dashboard: localhost:3000`, { 
+    client.user.setActivity(`${stats.active} active subs | Subscription: vireliasubscription.onrender.com`, { 
       type: ActivityType.Watching 
     });
   } catch (error) {
-    client.user.setActivity('Dashboard: localhost:3000', { 
+    client.user.setActivity('Dashboard: vireliasubscription.onrender.com', { 
       type: ActivityType.Watching 
     });
   }
