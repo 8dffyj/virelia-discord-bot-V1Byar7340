@@ -210,7 +210,7 @@
                     </div>
                     <p class="text-blue-200 text-sm mt-2">
                         <i class="fas fa-clock mr-1"></i>
-                        Updated: <%= new Date(timestamp).toLocaleTimeString() %>
+                        Updated: <span id="lastUpdatedTime" data-timestamp="<%= timestamp.toISOString() %>">Loading...</span>
                     </p>
                 </div>
             </div>
@@ -437,11 +437,11 @@
                                 <div class="flex justify-between text-xs text-gray-400 mb-2">
                                     <span class="font-medium">
                                         <i class="fas fa-calendar-plus mr-1"></i>
-                                        <%= new Date(sub.subscription.startAt).toLocaleDateString() %>
+                                        <span class="date-display" data-date="<%= sub.subscription.startAt %>">Loading...</span>
                                     </span>
                                     <span class="font-medium">
                                         <i class="fas fa-calendar-times mr-1"></i>
-                                        <%= new Date(sub.subscription.expiresAt).toLocaleDateString() %>
+                                        <span class="date-display" data-date="<%= sub.subscription.expiresAt %>">Loading...</span>
                                     </span>
                                 </div>
                                 
@@ -505,7 +505,7 @@
                                 <span>
                                     <i class="fas fa-user-clock mr-1"></i>
                                     <% if (sub.user.joinedAt) { %>
-                                        Member since <%= new Date(sub.user.joinedAt).toLocaleDateString() %>
+                                        Member since <span class="date-display" data-date="<%= sub.user.joinedAt %>">Loading...</span>
                                     <% } else { %>
                                         Discord User
                                     <% } %>
@@ -564,7 +564,7 @@
                         </div>
                         <div class="flex items-center">
                             <i class="fas fa-clock mr-2 text-purple-400"></i>
-                            <span>Last Updated: <%= new Date(timestamp).toLocaleString() %></span>
+                            <span>Last Updated: <span id="footerLastUpdated" data-timestamp="<%= timestamp.toISOString() %>">Loading...</span></span>
                         </div>
                     </div>
                 </div>
@@ -584,6 +584,68 @@
 
     <!-- JavaScript -->
     <script>
+        // Utility function to format dates in user's local timezone
+        function formatLocalDateTime(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleString(undefined, {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                timeZoneName: 'short'
+            });
+        }
+
+        function formatLocalDate(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleDateString(undefined, {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+
+        function formatLocalTime(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString(undefined, {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+        }
+
+        // Initialize all timestamps with local timezone
+        function initializeTimestamps() {
+            // Update last updated time in header
+            const lastUpdatedElement = document.getElementById('lastUpdatedTime');
+            if (lastUpdatedElement) {
+                const timestamp = lastUpdatedElement.getAttribute('data-timestamp');
+                if (timestamp) {
+                    lastUpdatedElement.textContent = formatLocalTime(timestamp);
+                }
+            }
+
+            // Update footer timestamp
+            const footerLastUpdated = document.getElementById('footerLastUpdated');
+            if (footerLastUpdated) {
+                const timestamp = footerLastUpdated.getAttribute('data-timestamp');
+                if (timestamp) {
+                    footerLastUpdated.textContent = formatLocalDateTime(timestamp);
+                }
+            }
+
+            // Update all date displays
+            const dateElements = document.querySelectorAll('.date-display');
+            dateElements.forEach(element => {
+                const dateValue = element.getAttribute('data-date');
+                if (dateValue) {
+                    element.textContent = formatLocalDate(dateValue);
+                }
+            });
+        }
+
         // Search functionality with debouncing
         let searchTimeout;
         document.getElementById('searchInput').addEventListener('input', function(e) {
@@ -665,8 +727,20 @@
                 .then(response => response.json())
                 .then(data => {
                     console.log('Stats updated:', data);
-                    // You can update specific elements here without full page refresh
-                    // For example, update the statistics cards
+                    // Update the header timestamp
+                    const lastUpdatedElement = document.getElementById('lastUpdatedTime');
+                    const footerLastUpdated = document.getElementById('footerLastUpdated');
+                    const currentTime = new Date().toISOString();
+                    
+                    if (lastUpdatedElement) {
+                        lastUpdatedElement.textContent = formatLocalTime(currentTime);
+                        lastUpdatedElement.setAttribute('data-timestamp', currentTime);
+                    }
+                    
+                    if (footerLastUpdated) {
+                        footerLastUpdated.textContent = formatLocalDateTime(currentTime);
+                        footerLastUpdated.setAttribute('data-timestamp', currentTime);
+                    }
                 })
                 .catch(error => {
                     console.error('Failed to fetch updated stats:', error);
@@ -710,6 +784,9 @@
 
         // Initialize animations
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize timestamps first
+            initializeTimestamps();
+            
             animateOnScroll();
             
             // Add stagger animation delay to cards
@@ -719,16 +796,19 @@
             });
         });
 
-        // Real-time clock update
-        function updateClock() {
-            const clockElements = document.querySelectorAll('[data-clock]');
-            clockElements.forEach(element => {
-                element.textContent = new Date().toLocaleTimeString();
-            });
+        // Real-time clock update for header
+        function updateHeaderClock() {
+            const lastUpdatedElement = document.getElementById('lastUpdatedTime');
+            if (lastUpdatedElement) {
+                const currentTime = new Date();
+                lastUpdatedElement.textContent = formatLocalTime(currentTime.toISOString());
+            }
         }
 
-        // Update clock every second
-        setInterval(updateClock, 1000);
+        // Update header clock every 30 seconds to show current time
+        setInterval(() => {
+            updateHeaderClock();
+        }, 30000);
 
         // Keyboard shortcuts
         document.addEventListener('keydown', function(e) {
@@ -903,7 +983,7 @@
             });
         });
 
-        console.log('✅ Dark Mode Dashboard fully initialized with all features');
+        console.log('✅ Dark Mode Dashboard fully initialized with local timezone support');
     </script>
 </body>
 </html>
