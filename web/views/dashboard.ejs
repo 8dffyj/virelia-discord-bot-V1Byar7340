@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            min-height: 100vh;
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #1e40af 0%, #7c3aed 50%, #c2410c 100%);
+            position: relative;
+        }
+        .gradient-bg::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(30, 64, 175, 0.9), rgba(124, 58, 237, 0.9), rgba(194, 65, 12, 0.9));
+            backdrop-filter: blur(10px);
+        }
+        .status-badge {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .avatar-ring {
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.5);
+        }
+        .expiring-soon {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+        .expiring-today {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+        .stat-card {
+            background: linear-gradient(135deg, rgba(51, 65, 85, 0.9), rgba(71, 85, 105, 0.95));
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+        .dark-card {
+            background: linear-gradient(135deg, rgba(51, 65, 85, 0.8), rgba(71, 85, 105, 0.9));
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+        .progress-glow {
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+        }
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        @keyframes floating {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .role-badge {
+            position: relative;
+            overflow: hidden;
+        }
+        .role-badge::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        .role-badge:hover::before {
+            left: 100%;
+        }
+        .subscription-card {
+            position: relative;
+            overflow: hidden;
+        }
+        .subscription-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ef4444, #f59e0b, #10b981);
+            background-size: 300% 100%;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+        @keyframes shimmer {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .glass-effect {
+            background: rgba(51, 65, 85, 0.6);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+        .neon-text {
+            text-shadow: 0 0 20px currentColor;
+        }
+        .dark-input {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            color: #e2e8f0;
+        }
+        .dark-input:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        .dark-input::placeholder {
+            color: #94a3b8;
+        }
+        .dark-select {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            color: #e2e8f0;
+        }
+        .dark-button {
+            background: linear-gradient(135deg, #3730a3, #5b21b6);
+            transition: all 0.3s ease;
+        }
+        .dark-button:hover {
+            background: linear-gradient(135deg, #4338ca, #6d28d9);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            pointer-events: none;
+            transform: scale(0);
+            animation: ripple 0.6s ease-out;
+        }
+        
+        @keyframes ripple {
+            to {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+        
+        @media print {
+            header, footer, #scrollToTop, button, select, input {
+                display: none !important;
+            }
+            
+            .subscription-card {
+                break-inside: avoid;
+                page-break-inside: avoid;
+                box-shadow: none !important;
+                border: 1px solid #374151 !important;
+                background: #1f2937 !important;
+            }
+            
+            .gradient-bg, .expiring-soon, .expiring-today {
+                background: #1f2937 !important;
+                color: #e5e7eb !important;
+            }
+            
+            body {
+                font-size: 12pt !important;
+                background: #111827 !important;
+                color: #e5e7eb !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen text-gray-100">
+    <!-- Header -->
+    <header class="gradient-bg text-white shadow-2xl relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-r from-indigo-900/30 to-purple-900/30"></div>
+        <div class="container mx-auto px-6 py-8 relative z-10">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <% if (guild.iconURL) { %>
+                        <img src="<%= guild.iconURL %>" alt="<%= guild.name %>" class="w-16 h-16 rounded-full ring-4 ring-white/30 floating">
+                    <% } else { %>
+                        <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center ring-4 ring-white/30 floating">
+                            <i class="fas fa-server text-2xl"></i>
+                        </div>
+                    <% } %>
+                    <div>
+                        <h1 class="text-4xl font-bold neon-text">Subscription Dashboard</h1>
+                        <p class="text-blue-200 text-lg"><%= guild.name %> • <%= guild.memberCount.toLocaleString() %> members</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div class="status-badge bg-green-500/80 px-4 py-2 rounded-full text-sm font-medium glass-effect">
+                        <i class="fas fa-circle text-xs mr-2 animate-pulse"></i>
+                        Live Dashboard
+                    </div>
+                    <p class="text-blue-200 text-sm mt-2">
+                        <i class="fas fa-clock mr-1"></i>
+                        Updated: <%= new Date(timestamp).toLocaleTimeString() %>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-6 py-8">
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="stat-card rounded-xl shadow-xl p-6 card-hover fade-in">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-4 rounded-full shadow-lg">
+                            <i class="fas fa-users text-white text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-gray-300 text-sm font-semibold uppercase tracking-wide">Total Subscriptions</h3>
+                            <p class="text-3xl font-bold text-white mt-1"><%= stats.total.toLocaleString() %></p>
+                        </div>
+                    </div>
+                    <div class="text-blue-400 text-2xl opacity-30">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card rounded-xl shadow-xl p-6 card-hover fade-in" style="animation-delay: 0.1s">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="bg-gradient-to-r from-green-500 to-green-600 p-4 rounded-full shadow-lg">
+                            <i class="fas fa-check-circle text-white text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-gray-300 text-sm font-semibold uppercase tracking-wide">Active Subscriptions</h3>
+                            <p class="text-3xl font-bold text-white mt-1"><%= stats.active.toLocaleString() %></p>
+                            <% if (stats.total > 0) { %>
+                                <p class="text-green-400 text-sm font-medium">
+                                    <%= Math.round((stats.active / stats.total) * 100) %>% active
+                                </p>
+                            <% } %>
+                        </div>
+                    </div>
+                    <div class="text-green-400 text-2xl opacity-30">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card rounded-xl shadow-xl p-6 card-hover fade-in" style="animation-delay: 0.2s">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="bg-gradient-to-r from-red-500 to-red-600 p-4 rounded-full shadow-lg">
+                            <i class="fas fa-clock text-white text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-gray-300 text-sm font-semibold uppercase tracking-wide">Expired</h3>
+                            <p class="text-3xl font-bold text-white mt-1"><%= stats.expired.toLocaleString() %></p>
+                            <% if (stats.total > 0) { %>
+                                <p class="text-red-400 text-sm font-medium">
+                                    <%= Math.round((stats.expired / stats.total) * 100) %>% expired
+                                </p>
+                            <% } %>
+                        </div>
+                    </div>
+                    <div class="text-red-400 text-2xl opacity-30">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filter -->
+        <div class="dark-card rounded-xl shadow-xl p-6 mb-8 fade-in" style="animation-delay: 0.3s">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+                <div>
+                    <h2 class="text-2xl font-bold text-white flex items-center">
+                        <i class="fas fa-users-cog mr-3 text-indigo-400"></i>
+                        Active Subscribers
+                    </h2>
+                    <p class="text-gray-300 mt-1">Monitor and manage subscription status in real-time</p>
+                </div>
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+                    <div class="relative">
+                        <input 
+                            type="text" 
+                            id="searchInput" 
+                            placeholder="Search by username..." 
+                            class="dark-input pl-12 pr-4 py-3 rounded-lg focus:ring-2 focus:ring-indigo-500 transition-all duration-200 w-full sm:w-64"
+                        >
+                        <i class="fas fa-search absolute left-4 top-4 text-gray-400"></i>
+                    </div>
+                    <select id="filterSelect" class="dark-select px-4 py-3 rounded-lg focus:ring-2 focus:ring-indigo-500 transition-all duration-200">
+                        <option value="all">All Subscriptions</option>
+                        <option value="expiring-soon">Expiring Soon (≤7 days)</option>
+                        <option value="expiring-today">Expiring Today</option>
+                        <option value="active">Active (>7 days)</option>
+                    </select>
+                    <button 
+                        id="refreshBtn"
+                        class="dark-button px-6 py-3 text-white rounded-lg font-medium shadow-lg"
+                    >
+                        <i class="fas fa-sync-alt mr-2"></i>
+                        Refresh
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Quick Stats Bar -->
+            <div class="mt-6 pt-6 border-t border-gray-600">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                    <div class="p-3 bg-blue-900/30 rounded-lg border border-blue-700/30">
+                        <p class="text-blue-300 font-semibold text-lg" id="totalCount"><%= subscriptions.length %></p>
+                        <p class="text-blue-400 text-sm">Showing</p>
+                    </div>
+                    <div class="p-3 bg-yellow-900/30 rounded-lg border border-yellow-700/30">
+                        <p class="text-yellow-300 font-semibold text-lg" id="expiringSoonCount">
+                            <%= subscriptions.filter(s => s.subscription.isExpiringSoon && !s.subscription.isExpiringToday).length %>
+                        </p>
+                        <p class="text-yellow-400 text-sm">Expiring Soon</p>
+                    </div>
+                    <div class="p-3 bg-red-900/30 rounded-lg border border-red-700/30">
+                        <p class="text-red-300 font-semibold text-lg" id="expiringTodayCount">
+                            <%= subscriptions.filter(s => s.subscription.isExpiringToday).length %>
+                        </p>
+                        <p class="text-red-400 text-sm">Expiring Today</p>
+                    </div>
+                    <div class="p-3 bg-green-900/30 rounded-lg border border-green-700/30">
+                        <p class="text-green-300 font-semibold text-lg" id="activeCount">
+                            <%= subscriptions.filter(s => !s.subscription.isExpiringSoon).length %>
+                        </p>
+                        <p class="text-green-400 text-sm">Healthy</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subscription Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" id="subscriptionGrid">
+            <% if (subscriptions.length === 0) { %>
+                <div class="col-span-full text-center py-16 fade-in">
+                    <div class="text-8xl text-gray-600 mb-6">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold text-gray-400 mb-2">No Active Subscriptions</h3>
+                    <p class="text-gray-500 text-lg">No users currently have active subscriptions.</p>
+                    <button 
+                        onclick="window.location.reload()" 
+                        class="mt-6 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors duration-200 font-medium"
+                    >
+                        <i class="fas fa-refresh mr-2"></i>
+                        Refresh Page
+                    </button>
+                </div>
+            <% } else { %>
+                <% subscriptions.forEach(function(sub, index) { %>
+                    <div class="subscription-card dark-card rounded-xl shadow-xl overflow-hidden card-hover <%= sub.subscription.isExpiringToday ? 'ring-2 ring-red-500' : sub.subscription.isExpiringSoon ? 'ring-2 ring-yellow-500' : '' %> fade-in" 
+                         style="animation-delay: <%= (index * 0.1) %>s"
+                         data-username="<%= sub.user.username.toLowerCase() %>"
+                         data-status="<%= sub.subscription.isExpiringToday ? 'expiring-today' : sub.subscription.isExpiringSoon ? 'expiring-soon' : 'active' %>">
+                        
+                        <!-- Status Indicator Bar -->
+                        <div class="h-1 <%= sub.subscription.isExpiringToday ? 'bg-red-500' : sub.subscription.isExpiringSoon ? 'bg-yellow-500' : 'bg-green-500' %>"></div>
+                        
+                        <!-- Card Header -->
+                        <div class="p-6 pb-4">
+                            <div class="flex items-start space-x-4">
+                                <div class="relative flex-shrink-0">
+                                    <img 
+                                        src="<%= sub.user.avatarURL %>" 
+                                        alt="<%= sub.user.username %>" 
+                                        class="w-16 h-16 rounded-full <%= sub.subscription.isExpiringSoon ? 'avatar-ring' : '' %> shadow-lg"
+                                        loading="lazy"
+                                    >
+                                    <% if (sub.subscription.isExpiringToday) { %>
+                                        <div class="absolute -top-1 -right-1 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center shadow-lg animate-pulse">
+                                            <i class="fas fa-exclamation text-white text-xs"></i>
+                                        </div>
+                                    <% } else if (sub.subscription.isExpiringSoon) { %>
+                                        <div class="absolute -top-1 -right-1 w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center shadow-lg">
+                                            <i class="fas fa-clock text-white text-xs"></i>
+                                        </div>
+                                    <% } else { %>
+                                        <div class="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
+                                            <i class="fas fa-check text-white text-xs"></i>
+                                        </div>
+                                    <% } %>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="font-bold text-white text-lg truncate"><%= sub.user.displayName %></h3>
+                                    <p class="text-gray-400 text-sm">@<%= sub.user.username %></p>
+                                    <div class="flex items-center mt-2">
+                                        <div 
+                                            class="w-3 h-3 rounded-full mr-2 shadow-sm role-badge" 
+                                            style="background-color: <%= sub.role.color %>"
+                                        ></div>
+                                        <span class="text-sm font-medium text-gray-300 truncate"><%= sub.role.name %></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card Body -->
+                        <div class="px-6 pb-6">
+                            <!-- Stats Row -->
+                            <div class="grid grid-cols-3 gap-4 mb-6">
+                                <div class="text-center p-3 bg-gray-800/50 rounded-lg border border-gray-700/30">
+                                    <p class="text-2xl font-bold text-white"><%= sub.subscription.months %></p>
+                                    <p class="text-xs text-gray-400 font-medium">Months</p>
+                                </div>
+                                <div class="text-center p-3 <%= sub.subscription.isExpiringToday ? 'bg-red-900/30 border-red-700/30' : sub.subscription.isExpiringSoon ? 'bg-yellow-900/30 border-yellow-700/30' : 'bg-green-900/30 border-green-700/30' %> rounded-lg border">
+                                    <p class="text-2xl font-bold <%= sub.subscription.isExpiringToday ? 'text-red-300' : sub.subscription.isExpiringSoon ? 'text-yellow-300' : 'text-green-300' %>">
+                                        <%= sub.subscription.daysRemaining %>
+                                    </p>
+                                    <p class="text-xs <%= sub.subscription.isExpiringToday ? 'text-red-400' : sub.subscription.isExpiringSoon ? 'text-yellow-400' : 'text-green-400' %> font-medium">Days Left</p>
+                                </div>
+                                <div class="text-center p-3 bg-blue-900/30 rounded-lg border border-blue-700/30">
+                                    <p class="text-2xl font-bold text-blue-300"><%= sub.subscription.hoursRemaining %></p>
+                                    <p class="text-xs text-blue-400 font-medium">Hours</p>
+                                </div>
+                            </div>
+
+                            <!-- Progress Bar Section -->
+                            <div class="mb-6">
+                                <div class="flex justify-between text-xs text-gray-400 mb-2">
+                                    <span class="font-medium">
+                                        <i class="fas fa-calendar-plus mr-1"></i>
+                                        <%= new Date(sub.subscription.startAt).toLocaleDateString() %>
+                                    </span>
+                                    <span class="font-medium">
+                                        <i class="fas fa-calendar-times mr-1"></i>
+                                        <%= new Date(sub.subscription.expiresAt).toLocaleDateString() %>
+                                    </span>
+                                </div>
+                                
+                                <div class="w-full bg-gray-700 rounded-full h-3 shadow-inner overflow-hidden">
+                                    <% 
+                                        const totalDays = Math.floor((new Date(sub.subscription.expiresAt) - new Date(sub.subscription.startAt)) / (1000 * 60 * 60 * 24));
+                                        const daysElapsed = totalDays - sub.subscription.daysRemaining;
+                                        const progressPercent = Math.min(100, Math.max(0, (daysElapsed / totalDays) * 100));
+                                        let progressColor = 'bg-gradient-to-r from-green-400 to-green-500';
+                                        if (progressPercent > 90) progressColor = 'bg-gradient-to-r from-red-400 to-red-500';
+                                        else if (progressPercent > 75) progressColor = 'bg-gradient-to-r from-yellow-400 to-yellow-500';
+                                        else if (progressPercent > 50) progressColor = 'bg-gradient-to-r from-blue-400 to-blue-500';
+                                    %>
+                                    <div class="<%= progressColor %> h-3 rounded-full transition-all duration-500 <%= progressPercent > 75 ? 'progress-glow' : '' %>" 
+                                         style="width: <%= progressPercent %>%"></div>
+                                </div>
+                                
+                                <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                    <span><%= Math.round(progressPercent) %>% elapsed</span>
+                                    <span><%= Math.round(100 - progressPercent) %>% remaining</span>
+                                </div>
+                            </div>
+
+                            <!-- Status Banner -->
+                            <div class="<%= sub.subscription.isExpiringToday ? 'expiring-today' : sub.subscription.isExpiringSoon ? 'expiring-soon' : 'bg-gradient-to-r from-green-500 to-green-600' %> p-4 rounded-lg text-center text-white shadow-lg">
+                                <% if (sub.subscription.isExpiringToday) { %>
+                                    <div class="flex items-center justify-center">
+                                        <i class="fas fa-exclamation-triangle text-xl mr-2 animate-bounce"></i>
+                                        <div>
+                                            <p class="font-bold text-lg">EXPIRES TODAY!</p>
+                                            <p class="text-sm opacity-90">
+                                                <%= sub.subscription.hoursRemaining %>h <%= sub.subscription.minutesRemaining %>m remaining
+                                            </p>
+                                        </div>
+                                    </div>
+                                <% } else if (sub.subscription.isExpiringSoon) { %>
+                                    <div class="flex items-center justify-center">
+                                        <i class="fas fa-hourglass-half text-xl mr-2"></i>
+                                        <div>
+                                            <p class="font-bold text-lg">Expires Soon</p>
+                                            <p class="text-sm opacity-90">
+                                                <%= sub.subscription.daysRemaining %> day<%= sub.subscription.daysRemaining !== 1 ? 's' : '' %> remaining
+                                            </p>
+                                        </div>
+                                    </div>
+                                <% } else { %>
+                                    <div class="flex items-center justify-center">
+                                        <i class="fas fa-shield-alt text-xl mr-2"></i>
+                                        <div>
+                                            <p class="font-bold text-lg">Active Subscription</p>
+                                            <p class="text-sm opacity-90">
+                                                <%= sub.subscription.daysRemaining %> day<%= sub.subscription.daysRemaining !== 1 ? 's' : '' %> remaining
+                                            </p>
+                                        </div>
+                                    </div>
+                                <% } %>
+                            </div>
+
+                            <!-- Additional Info -->
+                            <div class="mt-4 pt-4 border-t border-gray-700 flex items-center justify-between text-xs text-gray-400">
+                                <span>
+                                    <i class="fas fa-user-clock mr-1"></i>
+                                    <% if (sub.user.joinedAt) { %>
+                                        Member since <%= new Date(sub.user.joinedAt).toLocaleDateString() %>
+                                    <% } else { %>
+                                        Discord User
+                                    <% } %>
+                                </span>
+                                <span class="font-mono bg-gray-800 px-2 py-1 rounded text-xs">
+                                    ID: <%= sub.user.id.slice(-4) %>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } %>
+        </div>
+
+        <!-- Load More / Pagination (if needed) -->
+        <% if (subscriptions.length > 0) { %>
+        <div class="text-center mt-12">
+            <div class="inline-flex items-center space-x-4 dark-card rounded-lg shadow-xl p-4">
+                <button 
+                    id="refreshDataBtn"
+                    class="dark-button text-white font-medium py-3 px-6 rounded-lg shadow-lg"
+                >
+                    <i class="fas fa-sync-alt mr-2"></i>
+                    Refresh Data
+                </button>
+                <div class="text-gray-400 text-sm">
+                    <i class="fas fa-clock mr-1"></i>
+                    Auto-refresh every 5 minutes
+                </div>
+            </div>
+        </div>
+        <% } %>
+    </div>
+
+    <!-- Footer -->
+    <footer class="dark-card border-t border-gray-700 mt-16">
+        <div class="container mx-auto px-6 py-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                <div class="flex items-center space-x-4 text-gray-300">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-robot text-indigo-400 text-xl"></i>
+                        <span class="font-semibold">Virelia Subscription</span>
+                    </div>
+                    <div class="hidden md:block text-gray-600">•</div>
+                    <span class="text-sm text-gray-400">Powered by roster</span>
+                </div>
+                <div class="mt-4 md:mt-0">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-6 text-sm text-gray-400">
+                        <div class="flex items-center">
+                            <i class="fas fa-server mr-2 text-green-400"></i>
+                            <span>Server Status: Online</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-database mr-2 text-blue-400"></i>
+                            <span>Database: Connected</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-clock mr-2 text-purple-400"></i>
+                            <span>Last Updated: <%= new Date(timestamp).toLocaleString() %></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6 pt-6 border-t border-gray-700 text-center text-xs text-gray-500">
+                <p>© <%= new Date().getFullYear() %> Discord Subscription Dashboard. Built with ❤️ for community management.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scroll to Top Button -->
+    <div id="scrollToTop" class="fixed bottom-6 right-6 opacity-0 pointer-events-none transition-all duration-300">
+        <button class="dark-button text-white p-4 rounded-full shadow-xl">
+            <i class="fas fa-arrow-up text-lg"></i>
+        </button>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Search functionality with debouncing
+        let searchTimeout;
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const searchTerm = e.target.value.toLowerCase();
+                const cards = document.querySelectorAll('.subscription-card');
+                let visibleCount = 0;
+                
+                cards.forEach(card => {
+                    const username = card.getAttribute('data-username');
+                    if (username.includes(searchTerm)) {
+                        card.style.display = 'block';
+                        visibleCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+                
+                updateVisibleCount(visibleCount);
+            }, 300);
+        });
+
+        // Filter functionality
+        document.getElementById('filterSelect').addEventListener('change', function(e) {
+            const filterValue = e.target.value;
+            const cards = document.querySelectorAll('.subscription-card');
+            let visibleCount = 0;
+            
+            cards.forEach(card => {
+                const status = card.getAttribute('data-status');
+                
+                if (filterValue === 'all') {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else if (filterValue === status) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            updateVisibleCount(visibleCount);
+        });
+
+        // Update visible count display
+        function updateVisibleCount(count) {
+            const totalCountElement = document.getElementById('totalCount');
+            if (totalCountElement) {
+                totalCountElement.textContent = count;
+            }
+        }
+
+        // Refresh functionality with loading states
+        function handleRefresh(button) {
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Refreshing...';
+            button.disabled = true;
+            
+            // Simulate loading time
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        }
+
+        // Add event listeners to refresh buttons
+        document.getElementById('refreshBtn').addEventListener('click', function() {
+            handleRefresh(this);
+        });
+
+        document.getElementById('refreshDataBtn').addEventListener('click', function() {
+            handleRefresh(this);
+        });
+
+        // Auto-refresh functionality
+        setInterval(() => {
+            fetch('/api/stats')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Stats updated:', data);
+                    // You can update specific elements here without full page refresh
+                    // For example, update the statistics cards
+                })
+                .catch(error => {
+                    console.error('Failed to fetch updated stats:', error);
+                });
+        }, 5 * 60 * 1000); // 5 minutes
+
+        // Scroll to top functionality
+        window.addEventListener('scroll', function() {
+            const scrollToTopBtn = document.getElementById('scrollToTop');
+            if (window.scrollY > 200) {
+                scrollToTopBtn.classList.remove('opacity-0', 'pointer-events-none');
+                scrollToTopBtn.classList.add('opacity-100', 'pointer-events-auto');
+            } else {
+                scrollToTopBtn.classList.add('opacity-0', 'pointer-events-none');
+                scrollToTopBtn.classList.remove('opacity-100', 'pointer-events-auto');
+            }
+        });
+
+        document.getElementById('scrollToTop').addEventListener('click', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Enhanced card animations on scroll
+        function animateOnScroll() {
+            const cards = document.querySelectorAll('.subscription-card, .stat-card');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('fade-in');
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            });
+
+            cards.forEach(card => {
+                observer.observe(card);
+            });
+        }
+
+        // Initialize animations
+        document.addEventListener('DOMContentLoaded', function() {
+            animateOnScroll();
+            
+            // Add stagger animation delay to cards
+            const cards = document.querySelectorAll('.subscription-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+
+        // Real-time clock update
+        function updateClock() {
+            const clockElements = document.querySelectorAll('[data-clock]');
+            clockElements.forEach(element => {
+                element.textContent = new Date().toLocaleTimeString();
+            });
+        }
+
+        // Update clock every second
+        setInterval(updateClock, 1000);
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl/Cmd + K for search
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                document.getElementById('searchInput').focus();
+            }
+            
+            // R for refresh
+            if (e.key === 'r' && !e.ctrlKey && !e.metaKey && e.target.tagName !== 'INPUT') {
+                e.preventDefault();
+                window.location.reload();
+            }
+        });
+
+        // Add tooltip functionality
+        function initTooltips() {
+            const tooltipElements = document.querySelectorAll('[data-tooltip]');
+            tooltipElements.forEach(element => {
+                element.addEventListener('mouseenter', function() {
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'absolute bg-gray-900 text-white px-2 py-1 rounded text-sm z-50 pointer-events-none';
+                    tooltip.textContent = this.getAttribute('data-tooltip');
+                    tooltip.style.bottom = '100%';
+                    tooltip.style.left = '50%';
+                    tooltip.style.transform = 'translateX(-50%)';
+                    tooltip.style.marginBottom = '5px';
+                    
+                    this.style.position = 'relative';
+                    this.appendChild(tooltip);
+                });
+                
+                element.addEventListener('mouseleave', function() {
+                    const tooltip = this.querySelector('.absolute.bg-gray-900');
+                    if (tooltip) {
+                        tooltip.remove();
+                    }
+                });
+            });
+        }
+
+        // Initialize tooltips
+        initTooltips();
+
+        // Performance monitoring
+        function logPerformance() {
+            if (performance.timing) {
+                const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
+                console.log(`Page load time: ${loadTime}ms`);
+            }
+        }
+
+        // Log performance on load
+        window.addEventListener('load', logPerformance);
+
+        // Add visual feedback for interactions
+        function addRippleEffect(event) {
+            const button = event.currentTarget;
+            const ripple = document.createElement('span');
+            const rect = button.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = event.clientX - rect.left - size / 2;
+            const y = event.clientY - rect.top - size / 2;
+            
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            ripple.classList.add('ripple');
+            
+            button.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        }
+
+        // Add ripple effect to buttons
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', addRippleEffect);
+        });
+
+        // Add loading skeleton for better UX
+        function showLoadingSkeleton() {
+            const grid = document.getElementById('subscriptionGrid');
+            if (grid.children.length === 0) {
+                const skeleton = `
+                    <div class="col-span-full">
+                        ${Array(6).fill().map(() => `
+                            <div class="dark-card rounded-xl shadow-xl p-6 mb-6 animate-pulse">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-16 h-16 bg-gray-700 rounded-full"></div>
+                                    <div class="flex-1">
+                                        <div class="h-4 bg-gray-700 rounded w-3/4 mb-2"></div>
+                                        <div class="h-3 bg-gray-700 rounded w-1/2"></div>
+                                    </div>
+                                </div>
+                                <div class="mt-6">
+                                    <div class="h-3 bg-gray-700 rounded mb-2"></div>
+                                    <div class="h-8 bg-gray-700 rounded"></div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                grid.innerHTML = skeleton;
+            }
+        }
+
+        // Error handling for failed requests
+        function handleRequestError(error) {
+            console.error('Request failed:', error);
+            
+            // Show user-friendly error message
+            const errorBanner = document.createElement('div');
+            errorBanner.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+            errorBanner.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    <span>Failed to refresh data. Please try again.</span>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(errorBanner);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (errorBanner.parentNode) {
+                    errorBanner.remove();
+                }
+            }, 5000);
+        }
+
+        // Enhanced fetch with error handling
+        function fetchWithErrorHandling(url) {
+            return fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .catch(handleRequestError);
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Discord Subscription Dashboard loaded successfully');
+            console.log(`Showing ${document.querySelectorAll('.subscription-card').length} subscriptions`);
+            
+            // Add accessibility improvements
+            document.querySelectorAll('button').forEach(button => {
+                if (!button.getAttribute('aria-label')) {
+                    const text = button.textContent.trim();
+                    button.setAttribute('aria-label', text);
+                }
+            });
+            
+            // Add focus styles for keyboard navigation
+            const focusableElements = document.querySelectorAll('button, input, select, [tabindex]');
+            focusableElements.forEach(element => {
+                element.addEventListener('focus', function() {
+                    this.classList.add('ring-2', 'ring-indigo-500', 'ring-opacity-50');
+                });
+                
+                element.addEventListener('blur', function() {
+                    this.classList.remove('ring-2', 'ring-indigo-500', 'ring-opacity-50');
+                });
+            });
+        });
+
+        console.log('✅ Dark Mode Dashboard fully initialized with all features');
+    </script>
+</body>
+</html>
