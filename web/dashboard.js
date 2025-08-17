@@ -201,6 +201,7 @@ class WebDashboard {
     return new Promise((resolve) => {
       this.server = this.app.listen(this.port, () => {
         logger.info(`🌐 Web dashboard started on http://localhost:${this.port}`);
+        logger.info(`🌐 Web dashboard started on https://subscriptionstatus.virelia.live/`);
         resolve();
       });
     });
